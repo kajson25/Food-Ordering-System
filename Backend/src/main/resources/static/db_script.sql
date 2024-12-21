@@ -36,3 +36,12 @@ CREATE TABLE IF NOT EXISTS items (
                 FOREIGN KEY (dish_id) REFERENCES dishes(id) ON DELETE CASCADE,
                 UNIQUE(order_id, dish_id) -- To ensure no duplicate dish entries for the same order
 );
+
+CREATE TABLE IF NOT EXISTS error_messages (
+                                     id BIGSERIAL PRIMARY KEY,
+                                     date date,
+                                     order_id BIGINT NOT NULL,
+                                     operation VARCHAR(255),
+                                     message VARCHAR(255),
+                                     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+);
