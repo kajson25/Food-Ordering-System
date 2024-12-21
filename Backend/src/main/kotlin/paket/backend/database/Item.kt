@@ -18,4 +18,6 @@ data class Item(
     var dish: Dish? = null,
     @Column(nullable = false)
     var quantity: Int = 1,
-)
+) {
+    override fun toString(): String = "Item(id=$id, dish=${dish!!.name}, quantity=$quantity)"
+}

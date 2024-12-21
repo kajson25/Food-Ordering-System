@@ -20,4 +20,6 @@ data class User(
     var password: String = "",
     @Column(nullable = false)
     var isAdmin: Boolean = false,
-)
+) {
+    override fun toString(): String = "User(id=$id, firstName=$firstName, lastName=$lastName, email=$email)"
+}

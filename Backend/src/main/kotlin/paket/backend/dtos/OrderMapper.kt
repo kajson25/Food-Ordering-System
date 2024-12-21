@@ -12,6 +12,7 @@ data class OrderDTO(
 
 data class PlaceOrderRequestDTO(
     val dishIds: List<Long>,
+    val quantities: List<Int>,
     val scheduledTime: String? = null, // ISO 8601 Format
 )
 

@@ -11,6 +11,6 @@ data class ItemDTO(
 fun Item.toDTO() =
     ItemDTO(
         id = this.id,
-        dish = this.dish.toDTO(),
+        dish = this.dish!!.toDTO(),
         quantity = this.quantity,
     )

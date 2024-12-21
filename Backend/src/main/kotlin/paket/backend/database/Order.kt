@@ -20,7 +20,9 @@ data class Order(
     var active: Boolean = true,
     @OneToMany(mappedBy = "order", cascade = [CascadeType.ALL], orphanRemoval = true)
     var items: MutableList<Item> = mutableListOf(),
-)
+) {
+    override fun toString(): String = "Order(id=$id, status=$status, active=$active)"
+}
 
 enum class OrderStatus {
     ORDERED,
