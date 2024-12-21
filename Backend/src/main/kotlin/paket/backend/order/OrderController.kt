@@ -43,7 +43,7 @@ class OrderController(
         @RequestParam userId: Long,
         @RequestBody request: PlaceOrderRequestDTO,
     ): ResponseEntity<ApiResponse<OrderDTO>> =
-        orderService.placeOrder(userId, request).fold(
+        orderService.createOrder(userId, request).fold(
             ifLeft = { error -> ResponseEntity.badRequest().body(ApiResponse(success = false, error = error.message)) },
             ifRight = { order -> ResponseEntity.ok(ApiResponse(success = true, data = order.toDTO())) },
         )

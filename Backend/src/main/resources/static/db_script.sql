@@ -1,4 +1,9 @@
--- Creating Users table
+DROP TABLE items;
+DROP TABLE dishes;
+DROP TABLE error_messages;
+DROP TABLE orders;
+DROP TABLE users;
+
 CREATE TABLE IF NOT EXISTS users (
                 id BIGSERIAL PRIMARY KEY,
                 first_name VARCHAR(255) NOT NULL,
@@ -9,12 +14,12 @@ CREATE TABLE IF NOT EXISTS users (
                 UNIQUE (email)
 );
 
--- Creating Orders table
 CREATE TABLE IF NOT EXISTS orders (
                 id BIGSERIAL PRIMARY KEY,
                 status VARCHAR(50) CHECK (status IN ('ORDERED', 'PREPARING', 'IN_DELIVERY', 'DELIVERED', 'CANCELED')) NOT NULL,
                 created_by BIGINT NOT NULL,
                 active BOOLEAN NOT NULL DEFAULT TRUE,
+                created_at date,
                 FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE
 );
 
@@ -38,10 +43,26 @@ CREATE TABLE IF NOT EXISTS items (
 );
 
 CREATE TABLE IF NOT EXISTS error_messages (
-                                     id BIGSERIAL PRIMARY KEY,
-                                     date date,
-                                     order_id BIGINT NOT NULL,
-                                     operation VARCHAR(255),
-                                     message VARCHAR(255),
-                                     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+                id BIGSERIAL PRIMARY KEY,
+                date date,
+                order_id BIGINT NOT NULL,
+                operation VARCHAR(255),
+                message VARCHAR(255),
+                FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+);
+
+-- Permissions table
+CREATE TABLE permissions (
+                             id BIGSERIAL PRIMARY KEY,
+                             name VARCHAR(255) NOT NULL UNIQUE
+);
+
+-- User Permissions table (Mapping users to permissions)
+CREATE TABLE user_permissions (
+                                  id BIGSERIAL PRIMARY KEY,
+                                  user_id BIGINT NOT NULL,
+                                  permission_id BIGINT NOT NULL,
+                                  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                                  FOREIGN KEY (permission_id) REFERENCES permissions(id) ON DELETE CASCADE,
+                                  UNIQUE (user_id, permission_id)
 );

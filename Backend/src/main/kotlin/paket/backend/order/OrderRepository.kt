@@ -9,6 +9,8 @@ import paket.backend.database.OrderStatus
 interface OrderRepository : JpaRepository<Order, Long> {
     fun findAllByCreatedById(userId: Long): List<Order>
 
+    fun countByStatusIn(statuses: List<OrderStatus>): Int
+
     fun findAllByStatusInAndCreatedById(
         statuses: List<OrderStatus>,
         userId: Long,

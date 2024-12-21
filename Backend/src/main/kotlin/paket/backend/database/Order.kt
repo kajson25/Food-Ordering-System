@@ -3,6 +3,7 @@
 package paket.backend.database
 
 import jakarta.persistence.*
+import java.time.LocalDateTime
 
 @Entity
 @Table(name = "orders")
@@ -18,6 +19,8 @@ data class Order(
     var createdBy: User? = null,
     @Column(nullable = false)
     var active: Boolean = true,
+    @Column(nullable = false)
+    var createdAt: LocalDateTime = LocalDateTime.now(),
     @OneToMany(mappedBy = "order", cascade = [CascadeType.ALL], orphanRemoval = true)
     var items: MutableList<Item> = mutableListOf(),
 ) {
