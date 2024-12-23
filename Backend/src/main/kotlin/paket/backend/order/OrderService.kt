@@ -80,7 +80,7 @@ class OrderService(
             return Either.Left(AppError.ValidationFailed("Maximum number of concurrent orders reached."))
         }
 
-        val userResult = userService.findById(userId)
+        val userResult = userService.getUserById(userId)
         return userResult.flatMap { user ->
             val dishes =
                 request.dishIds.mapNotNull { dishId ->

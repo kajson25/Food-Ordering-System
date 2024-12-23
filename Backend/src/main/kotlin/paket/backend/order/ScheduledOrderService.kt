@@ -48,7 +48,7 @@ class ScheduledOrderService(
         val now = LocalDateTime.now()
 
         scheduledOrders.filter { it.scheduledTime.isBefore(now) }.forEach { scheduledOrder ->
-            val userResult = userService.findById(scheduledOrder.userId)
+            val userResult = userService.getUserById(scheduledOrder.userId)
             val dishes =
                 scheduledOrder.dishIds.mapNotNull { dishId ->
                     dishRepository.findById(dishId).orElse(null)

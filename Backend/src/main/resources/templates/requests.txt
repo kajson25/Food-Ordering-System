@@ -1,0 +1,14 @@
+POST http://localhost:8080/auth/login
+{
+  "email": "naruto@konoha.com",
+  "password": "password"
+}
+
+POST http://localhost:8080/users/create
+{
+  "firstName": "Shikamaru",
+  "lastName": "Nara",
+  "email": "shikamaru@konoha.com",
+  "password": "password",
+  "isAdmin": false
+}

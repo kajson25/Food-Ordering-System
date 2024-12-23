@@ -3,6 +3,7 @@
 package paket.backend.database
 
 import jakarta.persistence.*
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 
 @Entity
 @Table(name = "users", uniqueConstraints = [UniqueConstraint(columnNames = ["email"])])
@@ -22,4 +23,15 @@ data class User(
     var isAdmin: Boolean = false,
 ) {
     override fun toString(): String = "User(id=$id, firstName=$firstName, lastName=$lastName, email=$email)"
+}
+
+object PasswordUtil {
+    private val encoder = BCryptPasswordEncoder()
+
+    fun hash(password: String): String = encoder.encode(password)
+
+    fun matches(
+        raw: String,
+        hashed: String,
+    ): Boolean = encoder.matches(raw, hashed)
 }

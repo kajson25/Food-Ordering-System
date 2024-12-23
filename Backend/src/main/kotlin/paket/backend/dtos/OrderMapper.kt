@@ -6,7 +6,7 @@ data class OrderDTO(
     val id: Long,
     val status: String,
     val active: Boolean,
-    val createdBy: UserDTO,
+    val createdBy: UserResponseDto,
     val items: List<ItemDTO>,
 )
 
