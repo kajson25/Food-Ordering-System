@@ -1,0 +1,9 @@
+<nav class="header">
+  <div class="logo">
+    <a routerLink="/users">My App</a>
+  </div>
+  <div class="nav-links">
+    <!-- Show Logout button if the user is authenticated -->
+    <button *ngIf="isAuthenticated()" (click)="logout()" class="btn-logout">Logout</button>
+  </div>
+</nav>

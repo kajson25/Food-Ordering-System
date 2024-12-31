@@ -1,0 +1,76 @@
+<div class="add-user-container">
+  <h2>Add New User</h2>
+
+  <!-- Success Message -->
+  <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+  <!-- Add User Form -->
+  <form (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="name">Name:</label>
+      <input
+        id="name"
+        type="text"
+        [(ngModel)]="user.firstName"
+        name="name"
+        required
+        placeholder="Enter user's name"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="lastName">Surname:</label>
+      <input
+        id="lastName"
+        type="text"
+        [(ngModel)]="user.lastName"
+        name="lastName"
+        required
+        placeholder="Enter user's lastName"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email:</label>
+      <input
+        id="email"
+        type="email"
+        [(ngModel)]="user.email"
+        name="email"
+        required
+        placeholder="Enter user's email"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="Password">Password:</label>
+      <input
+        id="password"
+        type="password"
+        [(ngModel)]="user.password"
+        name="password"
+        required
+        placeholder="Enter user's password"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="permissions">Permissions:</label>
+      <input
+        id="permissions"
+        type="text"
+        [(ngModel)]="user.permissions"
+        name="permissions"
+        required
+        placeholder="Enter permissions (comma-separated)"
+      />
+    </div>
+
+    <button type="submit" [disabled]="isSaving" class="btn-save">
+      {{ isSaving ? 'Saving...' : 'Add User' }}
+    </button>
+  </form>
+</div>

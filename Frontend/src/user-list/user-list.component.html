@@ -1,0 +1,55 @@
+<div class="user-list-container">
+  <h2>Users</h2>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="loading-spinner">Loading...</div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+  <!-- User Table -->
+  <table *ngIf="!isLoading && users.length > 0" class="user-table">
+    <thead>
+    <tr>
+      <th>First Name</th>
+      <th>Last Name</th>
+      <th>Email</th>
+      <th>Permissions</th>
+      <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let user of users">
+      <td>{{ user.firstName }}</td>
+      <td>{{ user.lastName }}</td>
+      <td>{{ user.email }}</td>
+      <td>{{ user.permissions.join(', ') }}</td>
+      <td>
+        <!-- Conditionally display Edit and Delete buttons -->
+        <button
+          *ngIf="canEdit() && user.email !== authService.getLoggedInUserEmail()"
+          (click)="onEditUser(user.email)"
+          class="btn-edit">
+          Edit
+        </button>
+        <button
+          *ngIf="canDelete() && user.email !== authService.getLoggedInUserEmail()"
+          (click)="onEditUser(user.email)"
+          class="btn-edit">
+          Delete
+        </button>
+        <!-- <button *ngIf="canEdit()" (click)="onEditUser(user.email)" class="btn-edit">Edit</button> -->
+        <!-- <button *ngIf="canDelete()" (click)="onDeleteUser(user.email)" class="btn-delete">Delete</button> -->
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <button *ngIf="canAdd()" (click)="onAddUser()" class="btn-add">Add User</button>
+
+  <!-- No Users Message -->
+  <div *ngIf="!isLoading && users.length === 0" class="no-users">
+    No users found.
+  </div>
+</div>
+

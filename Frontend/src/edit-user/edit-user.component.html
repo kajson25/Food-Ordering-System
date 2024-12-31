@@ -1,0 +1,66 @@
+<div class="edit-user-container">
+  <h2>Edit User</h2>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="loading-spinner">Loading...</div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+  <!-- Edit Form -->
+  <form *ngIf="!isLoading && user" (ngSubmit)="onSave()">
+    <div class="form-group">
+      <label for="firstName">First name:</label>
+      <input
+        id="firstName"
+        type="text"
+        [(ngModel)]="user.firstName"
+        name="firstName"
+        required
+        placeholder="Enter user's first name"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="lastName">LastName:</label>
+      <input
+        id="lastName"
+        type="text"
+        [(ngModel)]="user.lastName"
+        name="lastName"
+        required
+        placeholder="Enter user's last name"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email:</label>
+      <input
+        id="email"
+        type="email"
+        [(ngModel)]="user.email"
+        name="email"
+        required
+        readonly
+        placeholder="User's email"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="permissions">Permissions:</label>
+      <input
+        id="permissions"
+        type="text"
+        [(ngModel)]="user.permissions"
+        name="permissions"
+        required
+        placeholder="Enter permissions (comma-separated)"
+      />
+    </div>
+
+    <button type="submit" [disabled]="isSaving" class="btn-save">
+      {{ isSaving ? 'Saving...' : 'Save' }}
+    </button>
+  </form>
+</div>
+
