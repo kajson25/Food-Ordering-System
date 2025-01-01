@@ -1,65 +1,112 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
-import {AuthService} from '../services/auth.service';
+import {FormsModule} from '@angular/forms';
 
 @Component({
   selector: 'app-add-user',
   standalone: true,
-  imports: [CommonModule, FormsModule],
   templateUrl: './add-user.component.html',
   styleUrls: ['./add-user.component.css'],
+  imports: [
+    FormsModule,
+    CommonModule,
+  ]
 })
-export class AddUserComponent {
-  user = { firstName: '', lastName: '', email: '', password: '', permissions: '' };
+export class AddUserComponent implements OnInit {
+  user = {
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    isAdmin: false,
+    permissions: [] as string[], // Selected permissions
+  };
+  allPermissions: string[] = []; // Available permissions
+  isSaving: boolean = false;
   errorMessage: string = '';
   successMessage: string = '';
-  isSaving: boolean = false;
 
-  constructor(private http: HttpClient, private router: Router, private authService: AuthService) {}
+  constructor(private http: HttpClient, private router: Router) {}
 
-  onSubmit(): void {
-    // Check if any field is empty
-    if (!this.user.firstName || !this.user.lastName || !this.user.email || !this.user.password || !this.user.permissions) {
-      this.errorMessage = 'All fields are required.';
+  ngOnInit(): void {
+    this.fetchAllPermissions();
+  }
+
+  private fetchAllPermissions(): void {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      this.errorMessage = 'Authentication token is missing. Please log in.';
       return;
     }
 
-    this.errorMessage = '';
+    this.http
+      .get<{ success: boolean; data: { permission: string }[] }>(
+        `http://localhost:2511/permissions/all`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.allPermissions = response.data.map((p) => p.permission);
+          } else {
+            this.errorMessage = 'Failed to fetch permissions.';
+          }
+        },
+        error: (err) => {
+          console.error('Error fetching permissions:', err);
+          this.errorMessage = 'An error occurred while fetching permissions.';
+        },
+      });
+  }
+
+  onSubmit(): void {
     this.successMessage = '';
+    this.errorMessage = '';
     this.isSaving = true;
 
     const token = localStorage.getItem('authToken');
     if (!token) {
-      this.errorMessage = 'Authentication token missing. Please log in.';
+      this.errorMessage = 'Authentication token is missing. Please log in.';
       this.isSaving = false;
       return;
     }
 
-    // Send user data to the backend
+    // Step 1: Create the user
     this.http
-      .post('http://localhost:2511/users/create', this.user, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+      .post(
+        `http://localhost:2511/users/create`,
+        { ...this.user }, // Include the user object as-is
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
       .subscribe({
         next: () => {
-          this.isSaving = false;
-          this.successMessage = 'User added successfully!';
-          setTimeout(() => {
-            this.router.navigate(['/users']);
-          }, 2000);
+          // Step 2: Add permissions
+          // this.addPermissions(this.user.email, this.user.permissions, token);
+          this.router.navigate(['/users']);
         },
         error: (err) => {
-          this.isSaving = false;
+          console.error('Error adding user:', err);
           this.errorMessage = 'Failed to add user. Please try again.';
-          console.error(err);
+          this.isSaving = false;
         },
       });
   }
-  canCreate(): boolean {
-    return this.authService.hasPermission('CAN_CREATE_USERS');
+
+  onPermissionChange(permission: string, event: Event): void {
+    const isChecked = (event.target as HTMLInputElement).checked; // Cast to HTMLInputElement to access `checked`
+
+    if (isChecked) {
+      // Add permission if it's checked and not already present
+      if (!this.user.permissions.includes(permission)) {
+        this.user.permissions.push(permission);
+      }
+    } else {
+      // Remove permission if it's unchecked
+      this.user.permissions = this.user.permissions.filter((p) => p !== permission);
+    }
   }
+
 
 }

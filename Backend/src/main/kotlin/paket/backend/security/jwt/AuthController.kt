@@ -23,8 +23,8 @@ class AuthController(
         userService.authenticate(data.email, data.password).fold(
             ifLeft = { error -> ResponseEntity.badRequest().body(ApiResponse(success = false, error = error.message)) },
             ifRight = { user ->
-                val permissions = permissionService.getUserPermissions(user.id).map { it.name }
-                val token = jwtTokenUtil.generateToken(user.id, user.email, permissions)
+                val permissions = permissionService.getUserPermissions(data.email).map { it.name }
+                val token = jwtTokenUtil.generateToken(user.email, permissions)
                 ResponseEntity.ok(ApiResponse(success = true, data = token))
             },
         )

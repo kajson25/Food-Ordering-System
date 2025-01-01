@@ -2,7 +2,6 @@
 
 package paket.backend.user
 
-import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import paket.backend.arrow.ApiResponse
@@ -10,21 +9,22 @@ import paket.backend.dtos.UserRequestDto
 import paket.backend.dtos.UserResponseDto
 import paket.backend.dtos.toDTO
 import paket.backend.permissions.PermissionMiddleware
+import paket.backend.security.jwt.JwtTokenUtil
 
 @RestController
 @RequestMapping("/users")
 class UserController(
     private val userService: UserService,
     private val permissionMiddleware: PermissionMiddleware,
+    private val jwtTokenUtil: JwtTokenUtil,
 ) {
-    // works
     @GetMapping("/{email}")
     fun getUserByEmail(
         @PathVariable email: String,
-        requestHttp: HttpServletRequest,
+        @RequestHeader("Authorization") token: String,
     ): ResponseEntity<ApiResponse<UserResponseDto>> {
-        val userId = requestHttp.getAttribute("userId") as Long
-        return permissionMiddleware.enforce(userId, "CAN_READ_USER").fold(
+        val loggedInEmail = jwtTokenUtil.extractClaims(token.substringAfter("Bearer ")).subject
+        return permissionMiddleware.enforce(loggedInEmail, "CAN_READ_USER").fold(
             ifLeft = { error -> ResponseEntity.ok(ApiResponse(success = false, error = error.message)) },
             ifRight = {
                 userService.getUserByEmail(email).fold(
@@ -38,9 +38,11 @@ class UserController(
     }
 
     @GetMapping("/all")
-    fun getAllUsers(requestHttp: HttpServletRequest): ResponseEntity<ApiResponse<List<UserResponseDto>>> {
-        val userId = requestHttp.getAttribute("userId") as Long
-        return permissionMiddleware.enforce(userId, "CAN_READ_USER").fold(
+    fun getAllUsers(
+        @RequestHeader("Authorization") token: String,
+    ): ResponseEntity<ApiResponse<List<UserResponseDto>>> {
+        val loggedInEmail = jwtTokenUtil.extractClaims(token.substringAfter("Bearer ")).subject
+        return permissionMiddleware.enforce(loggedInEmail, "CAN_READ_USER").fold(
             ifLeft = { error -> ResponseEntity.ok(ApiResponse(success = false, error = error.message)) },
             ifRight = {
                 userService.getAllUsers().fold(
@@ -60,15 +62,14 @@ class UserController(
         )
     }
 
-    // works
     @PostMapping("/create")
     fun createUser(
         @RequestBody userRequest: UserRequestDto,
-        requestHttp: HttpServletRequest,
+        @RequestHeader("Authorization") token: String, // Extract JWT from the header
     ): ResponseEntity<ApiResponse<UserResponseDto>> {
-        val userId = requestHttp.getAttribute("userId") as Long
-        println("KONTORLER SUGAVI: $userId")
-        return permissionMiddleware.enforce(userId, "CAN_CREATE_USER").fold(
+        println("user request: $userRequest")
+        val loggedInEmail = jwtTokenUtil.extractClaims(token.substringAfter("Bearer ")).subject
+        return permissionMiddleware.enforce(loggedInEmail, "CAN_CREATE_USER").fold(
             ifLeft = { error -> ResponseEntity.ok(ApiResponse(success = false, error = error.message)) },
             ifRight = {
                 userService.createUser(userRequest).fold(
@@ -81,15 +82,14 @@ class UserController(
         )
     }
 
-    // works
     @PutMapping("/update/{email}")
     fun updateUser(
         @PathVariable email: String,
         @RequestBody userRequest: UserRequestDto,
-        requestHttp: HttpServletRequest,
+        @RequestHeader("Authorization") token: String, // Extract JWT from the header
     ): ResponseEntity<ApiResponse<UserResponseDto>> {
-        val userId = requestHttp.getAttribute("userId") as Long
-        return permissionMiddleware.enforce(userId, "CAN_UPDATE_USER").fold(
+        val loggedInEmail = jwtTokenUtil.extractClaims(token.substringAfter("Bearer ")).subject
+        return permissionMiddleware.enforce(loggedInEmail, "CAN_UPDATE_USER").fold(
             ifLeft = { error -> ResponseEntity.ok(ApiResponse(success = false, error = error.message)) },
             ifRight = {
                 userService.updateUser(email, userRequest).fold(
@@ -102,14 +102,13 @@ class UserController(
         )
     }
 
-    // works
     @DeleteMapping("/delete/{email}")
     fun deleteUser(
         @PathVariable email: String,
-        requestHttp: HttpServletRequest,
+        @RequestHeader("Authorization") token: String, // Extract JWT from the header
     ): ResponseEntity<ApiResponse<String>> {
-        val userId = requestHttp.getAttribute("userId") as Long
-        return permissionMiddleware.enforce(userId, "CAN_DELETE_USER").fold(
+        val loggedInEmail = jwtTokenUtil.extractClaims(token.substringAfter("Bearer ")).subject
+        return permissionMiddleware.enforce(loggedInEmail, "CAN_DELETE_USER").fold(
             ifLeft = { error -> ResponseEntity.ok(ApiResponse(success = false, error = error.message)) },
             ifRight = {
                 userService.deleteUser(email).fold(

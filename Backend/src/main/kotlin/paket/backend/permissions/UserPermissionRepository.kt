@@ -6,5 +6,10 @@ import paket.backend.database.UserPermission
 
 @Repository
 interface UserPermissionRepository : JpaRepository<UserPermission, Long> {
-    fun findAllByUserId(userId: Long): List<UserPermission>
+    fun findAllByUserEmail(email: String): List<UserPermission>
+
+    fun findByUserIdAndPermissionId(
+        userId: Long,
+        permissionId: Long,
+    ): UserPermission?
 }

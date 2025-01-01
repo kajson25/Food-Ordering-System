@@ -24,13 +24,13 @@ class ScheduledOrderService(
     private val scheduledOrders = ConcurrentLinkedQueue<ScheduledOrder>()
 
     data class ScheduledOrder(
-        val userId: Long,
+        val email: String,
         val dishIds: List<Long>,
         val scheduledTime: LocalDateTime,
     )
 
     fun scheduleOrder(
-        userId: Long,
+        email: String,
         dishIds: List<Long>,
         scheduledTime: LocalDateTime,
     ): Either<AppError, String> {
@@ -38,7 +38,7 @@ class ScheduledOrderService(
             return Either.Left(AppError.ValidationFailed("Scheduled time cannot be in the past."))
         }
 
-        scheduledOrders.add(ScheduledOrder(userId, dishIds, scheduledTime))
+        scheduledOrders.add(ScheduledOrder(email, dishIds, scheduledTime))
         return Either.Right("Order successfully scheduled.")
     }
 
@@ -48,7 +48,7 @@ class ScheduledOrderService(
         val now = LocalDateTime.now()
 
         scheduledOrders.filter { it.scheduledTime.isBefore(now) }.forEach { scheduledOrder ->
-            val userResult = userService.getUserById(scheduledOrder.userId)
+            val userResult = userService.getUserByEmail(scheduledOrder.email)
             val dishes =
                 scheduledOrder.dishIds.mapNotNull { dishId ->
                     dishRepository.findById(dishId).orElse(null)

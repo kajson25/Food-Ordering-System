@@ -1,5 +1,6 @@
 package paket.backend.dtos
 
+import paket.backend.database.Permission
 import paket.backend.database.User
 
 data class UserRequestDto(
@@ -8,6 +9,7 @@ data class UserRequestDto(
     val email: String,
     val password: String,
     val isAdmin: Boolean,
+    val permissions: List<String>,
 )
 
 data class UserResponseDto(
@@ -16,6 +18,16 @@ data class UserResponseDto(
     val lastName: String,
     val email: String,
     val isAdmin: Boolean,
+    val permissions: List<String>,
+)
+
+data class PermissionRequestDto(
+    val email: String,
+    val permission: String,
+)
+
+data class PermissionResponseDto(
+    val permission: String,
 )
 
 fun User.toDTO() =
@@ -25,6 +37,7 @@ fun User.toDTO() =
         lastName = this.lastName,
         email = this.email,
         isAdmin = this.isAdmin,
+        permissions = listOf(),
     )
 
 // Extension to map a UserRequestDto to a User entity
@@ -35,4 +48,11 @@ fun UserRequestDto.toEntity(hashedPassword: String): User =
         email = this.email,
         password = hashedPassword,
         isAdmin = this.isAdmin,
+    )
+
+fun Permission.toPermissionResponseDto(): PermissionResponseDto = PermissionResponseDto(permission = this.name)
+
+fun PermissionRequestDto.toPermission(): Permission =
+    Permission(
+        name = this.permission,
     )

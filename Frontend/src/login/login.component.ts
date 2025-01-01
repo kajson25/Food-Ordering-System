@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import {AuthService} from '../services/auth.service';
+import { AuthService } from '../services/auth.service';
 import { FormsModule } from '@angular/forms'; // Import FormsModule
 import { CommonModule } from '@angular/common'; // Import CommonModule for structural directives
 
@@ -29,16 +29,23 @@ export class LoginComponent {
     this.isLoading = true; // Start loading state
 
     this.authService.login(this.email, this.password).subscribe({
-      next: () => {
-        this.isLoading = false;
-        console.log("Not loading")
-        this.router.navigate(['/users']);
+      next: (response) => {
+        if (response.success) {
+          this.isLoading = false;
+          this.router.navigate(['/users']);
+        } else {
+          this.handleError(response.error || 'Login failed.');
+        }
       },
-      error: () => {
-        this.isLoading = false;
-        this.errorMessage = 'Invalid email or password.';
+      error: (err) => {
+        console.error('Login error:', err);
+        this.handleError('Invalid email or password.');
       },
     });
   }
-}
 
+  private handleError(message: string): void {
+    this.isLoading = false;
+    this.errorMessage = message;
+  }
+}

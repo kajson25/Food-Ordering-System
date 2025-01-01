@@ -7,60 +7,51 @@
   <!-- Error Message -->
   <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
 
+  <!-- Success Message -->
+  <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
+
   <!-- Edit Form -->
-  <form *ngIf="!isLoading && user" (ngSubmit)="onSave()">
+  <form *ngIf="!isLoading && user" (ngSubmit)="saveChanges()">
     <div class="form-group">
-      <label for="firstName">First name:</label>
-      <input
-        id="firstName"
-        type="text"
-        [(ngModel)]="user.firstName"
-        name="firstName"
-        required
-        placeholder="Enter user's first name"
-      />
+      <label for="firstName">First Name:</label>
+      <input id="firstName" type="text" [(ngModel)]="user.firstName" name="firstName" required />
     </div>
 
     <div class="form-group">
-      <label for="lastName">LastName:</label>
-      <input
-        id="lastName"
-        type="text"
-        [(ngModel)]="user.lastName"
-        name="lastName"
-        required
-        placeholder="Enter user's last name"
-      />
+      <label for="lastName">Last Name:</label>
+      <input id="lastName" type="text" [(ngModel)]="user.lastName" name="lastName" required />
     </div>
 
     <div class="form-group">
       <label for="email">Email:</label>
-      <input
-        id="email"
-        type="email"
-        [(ngModel)]="user.email"
-        name="email"
-        required
-        readonly
-        placeholder="User's email"
-      />
+      <input id="email" type="email" [(ngModel)]="user.email" name="email" readonly />
     </div>
 
     <div class="form-group">
-      <label for="permissions">Permissions:</label>
-      <input
-        id="permissions"
-        type="text"
-        [(ngModel)]="user.permissions"
-        name="permissions"
-        required
-        placeholder="Enter permissions (comma-separated)"
-      />
+      <label for="password">Password:</label>
+      <input id="password" type="password" [(ngModel)]="user.password" name="password" required />
     </div>
 
-    <button type="submit" [disabled]="isSaving" class="btn-save">
-      {{ isSaving ? 'Saving...' : 'Save' }}
+    <div class="form-group">
+      <label for="isAdmin">Admin:</label>
+      <input id="isAdmin" type="checkbox" [(ngModel)]="user.isAdmin" name="isAdmin" />
+    </div>
+
+    <div class="form-group" id="permissions">
+      <label for="permissions">Permissions:</label>
+      <div *ngFor="let permission of allPermissions">
+        <input
+          type="checkbox"
+          [value]="permission"
+          [checked]="assignedPermissions.includes(permission)"
+          (change)="togglePermission(permission)"
+        />
+        {{ permission }}
+      </div>
+    </div>
+
+    <button type="submit" [disabled]="isSaving">
+      {{ isSaving ? 'Saving...' : 'Save Changes' }}
     </button>
   </form>
 </div>
-

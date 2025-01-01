@@ -20,12 +20,10 @@ class JwtAuthenticationFilter(
 
         if (token != null && jwtTokenUtil.validateToken(token)) {
             val claims: Claims = jwtTokenUtil.extractClaims(token)
-            val userId = (claims["id"] as Integer).toLong()
             val email = claims.subject
             val permissions = claims["permissions"] as List<*>
 
-            // Add user info and permissions to request attributes
-            request.setAttribute("userId", userId)
+            // Add email and permissions to request attributes
             request.setAttribute("email", email)
             request.setAttribute("permissions", permissions)
         }

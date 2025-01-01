@@ -8,28 +8,30 @@ import paket.backend.arrow.ErrorMessageService
 import paket.backend.database.Item
 import paket.backend.database.Order
 import paket.backend.database.OrderStatus
+import paket.backend.database.User
 import paket.backend.dish.DishRepository
 import paket.backend.dtos.PlaceOrderRequestDTO
-import paket.backend.user.UserService
+import paket.backend.user.UserRepository
 
 @Service
 class OrderService(
     private val orderRepository: OrderRepository,
     private val dishRepository: DishRepository,
-    private val userService: UserService,
+    private val userRepository: UserRepository,
     private val errorMessageService: ErrorMessageService,
 ) {
-    fun allOrders(userId: Long): Either<AppError, List<Order>> = Either.Right(orderRepository.findAll())
+    fun allOrders(email: String): Either<AppError, List<Order>> = Either.Right(orderRepository.findAll())
 
     fun searchOrders(
-        userId: Long?,
+        email: String?,
         status: List<OrderStatus>?,
         dateFrom: String?,
         dateTo: String?,
     ): Either<AppError, List<Order>> =
         Either.Right(
-            if (userId != null) {
-                orderRepository.findAllByCreatedById(userId)
+            if (email != null) {
+                val user: User? = userRepository.findByEmail(email)
+                orderRepository.findAllByCreatedById(user!!.id)
             } else {
                 orderRepository.findAll()
             },
@@ -37,13 +39,13 @@ class OrderService(
 
     fun cancelOrder(
         orderId: Long,
-        userId: Long,
+        email: String,
     ): Either<AppError, Order> {
         val order = orderRepository.findById(orderId)
         if (order.isEmpty) return Either.Left(AppError.NotFound("Order", orderId))
 
         val orderEntity = order.get()
-        if (orderEntity.createdBy!!.id != userId) return Either.Left(AppError.Unauthorized("cancel this order"))
+        if (orderEntity.createdBy!!.email != email) return Either.Left(AppError.Unauthorized("cancel this order"))
 
         return if (orderEntity.status == OrderStatus.ORDERED) {
             orderEntity.status = OrderStatus.CANCELED
@@ -55,19 +57,19 @@ class OrderService(
 
     fun trackOrder(
         orderId: Long,
-        userId: Long,
+        email: String,
     ): Either<AppError, String> {
         val order = orderRepository.findById(orderId)
         if (order.isEmpty) return Either.Left(AppError.NotFound("Order", orderId))
 
         val orderEntity = order.get()
-        if (orderEntity.createdBy!!.id != userId) return Either.Left(AppError.Unauthorized("track this order"))
+        if (orderEntity.createdBy!!.email != email) return Either.Left(AppError.Unauthorized("track this order"))
 
         return Either.Right(orderEntity.status.name)
     }
 
     fun createOrder(
-        userId: Long,
+        email: String,
         request: PlaceOrderRequestDTO,
     ): Either<AppError, Order> {
         val concurrentOrdersCount = orderRepository.countByStatusIn(listOf(OrderStatus.PREPARING, OrderStatus.IN_DELIVERY))
@@ -80,7 +82,9 @@ class OrderService(
             return Either.Left(AppError.ValidationFailed("Maximum number of concurrent orders reached."))
         }
 
-        val userResult = userService.getUserById(userId)
+        val userResult =
+            userRepository.findByEmail(email)?.let { Either.Right(it) }
+                ?: Either.Left(AppError.NotFound("User", 0))
         return userResult.flatMap { user ->
             val dishes =
                 request.dishIds.mapNotNull { dishId ->

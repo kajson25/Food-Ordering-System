@@ -3,29 +3,33 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { jwtDecode } from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode'; // Correct import for jwt-decode
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private readonly apiUrl = 'http://localhost:2511/users/login';
+  private readonly apiUrl = 'http://localhost:2511/auth/login';
   private permissions: string[] = [];
-  private loggedInUserEmail: string | null = null; // Store the logged-in user's email
+  private loggedInUserEmail: string | null = null;
 
   constructor(private http: HttpClient, private router: Router) {
     this.reloadPermissionsFromToken(); // Reload permissions on service initialization
   }
 
-  login(email: string, password: string): Observable<{ token: string }> {
-    return this.http.post<{ token: string }>(this.apiUrl, { email, password }).pipe(
+  login(email: string, password: string): Observable<{ success: boolean; data: string; error: string | null }> {
+    return this.http.post<{ success: boolean; data: string; error: string | null }>(this.apiUrl, { email, password }).pipe(
       tap({
         next: (response) => {
-          localStorage.setItem('authToken', response.token);
-          this.decodeToken(response.token); // Decode and store permissions
+          if (response.success && response.data) {
+            localStorage.setItem('authToken', response.data); // Store the token from `data`
+            this.decodeToken(response.data); // Decode and store permissions, email
+          } else {
+            console.error('Login failed:', response.error || 'Unknown error');
+          }
         },
         error: (error) => {
-          console.error('Error in tap:', error);
+          console.error('Error during login request:', error);
         },
       })
     );
@@ -50,24 +54,26 @@ export class AuthService {
     return this.permissions.includes(permission);
   }
 
-  getLoggedInUserEmail(): string | null {
-    return this.loggedInUserEmail;
+  getLoggedInUserEmail(): string {
+    return <string>this.loggedInUserEmail;
   }
 
   private decodeToken(token: string): void {
     try {
-      const decoded: { permissions: string[]; sub: string } = jwtDecode(token);
-      this.permissions = decoded.permissions || [];
+      const decoded: { sub: string; id?: number; permissions: string[] } = jwtDecode(token);
       this.loggedInUserEmail = decoded.sub || null;
+      this.permissions = decoded.permissions || [];
     } catch (error) {
       console.error('Error decoding token:', error);
+      this.permissions = [];
+      this.loggedInUserEmail = null;
     }
   }
 
   private reloadPermissionsFromToken(): void {
     const token = localStorage.getItem('authToken');
     if (token) {
-      this.decodeToken(token); // Decode and store permissions if token exists
+      this.decodeToken(token); // Decode and store permissions and email if token exists
     }
   }
 }

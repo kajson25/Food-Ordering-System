@@ -21,9 +21,12 @@ class OrderController(
     private val permissionMiddleware: PermissionMiddleware,
 ) {
     @GetMapping("/all")
-    fun allOrders(requestHttp: HttpServletRequest): ResponseEntity<ApiResponse<List<OrderDTO>>> {
-        val userId = requestHttp.getAttribute("userId") as Long
-        return orderService.allOrders(userId).fold(
+    fun allOrders(
+        @RequestParam email: String,
+        requestHttp: HttpServletRequest,
+    ): ResponseEntity<ApiResponse<List<OrderDTO>>> {
+//        val userId = requestHttp.getAttribute("userId") as Long
+        return orderService.allOrders(email).fold(
             ifLeft = { error -> ResponseEntity.badRequest().body(ApiResponse(success = false, error = error.message)) },
             ifRight = { orders -> ResponseEntity.ok(ApiResponse(success = true, data = orders.map { it.toDTO() })) },
         )
@@ -31,16 +34,17 @@ class OrderController(
 
     @GetMapping("/search")
     fun searchOrders(
+        @RequestParam email: String,
         @RequestParam statuses: List<OrderStatus>?,
         @RequestParam dateFrom: String?,
         @RequestParam dateTo: String?,
         requestHttp: HttpServletRequest,
     ): ResponseEntity<ApiResponse<List<OrderDTO>>> {
-        val userId = requestHttp.getAttribute("userId") as Long
-        return permissionMiddleware.enforce(userId, "CAN_SEARCH_ORDER").fold(
+//        val email = requestHttp.getAttribute("email") as String
+        return permissionMiddleware.enforce(email, "CAN_SEARCH_ORDER").fold(
             ifLeft = { error -> ResponseEntity.ok(ApiResponse(success = false, error = error.message)) },
             ifRight = {
-                orderService.searchOrders(userId, statuses, dateFrom, dateTo).fold(
+                orderService.searchOrders(email, statuses, dateFrom, dateTo).fold(
                     ifLeft = { error ->
                         ResponseEntity.badRequest().body(ApiResponse(success = false, error = error.message))
                     },
@@ -48,7 +52,10 @@ class OrderController(
                         ResponseEntity.ok(
                             ApiResponse(
                                 success = true,
-                                data = orders.map { it.toDTO() },
+                                data =
+                                    orders.map {
+                                        it.toDTO()
+                                    },
                             ),
                         )
                     },
@@ -60,14 +67,15 @@ class OrderController(
     // tested - working
     @PostMapping("/new-order")
     fun placeOrder(
+        @RequestParam email: String,
         @RequestBody request: PlaceOrderRequestDTO,
         requestHttp: HttpServletRequest,
     ): ResponseEntity<ApiResponse<OrderDTO>> {
-        val userId = requestHttp.getAttribute("userId") as Long
-        return permissionMiddleware.enforce(userId, "CAN_PLACE_ORDER").fold(
+//        val email = requestHttp.getAttribute("email") as String
+        return permissionMiddleware.enforce(email, "CAN_PLACE_ORDER").fold(
             ifLeft = { error -> ResponseEntity.ok(ApiResponse(success = false, error = error.message)) },
             ifRight = {
-                orderService.createOrder(userId, request).fold(
+                orderService.createOrder(email, request).fold(
                     ifLeft = { error ->
                         ResponseEntity.badRequest().body(ApiResponse(success = false, error = error.message))
                     },
@@ -80,14 +88,15 @@ class OrderController(
     // working but it's hard to test happy case because lag is too small
     @PostMapping("/{orderId}/cancel")
     fun cancelOrder(
+        @RequestParam email: String,
         @PathVariable orderId: Long,
         requestHttp: HttpServletRequest,
     ): ResponseEntity<ApiResponse<OrderDTO>> {
-        val userId = requestHttp.getAttribute("userId") as Long
-        return permissionMiddleware.enforce(userId, "CAN_CANCEL_ORDER").fold(
+//        val email = requestHttp.getAttribute("email") as String
+        return permissionMiddleware.enforce(email, "CAN_CANCEL_ORDER").fold(
             ifLeft = { error -> ResponseEntity.ok(ApiResponse(success = false, error = error.message)) },
             ifRight = {
-                orderService.cancelOrder(orderId, userId).fold(
+                orderService.cancelOrder(orderId, email).fold(
                     ifLeft = { error ->
                         ResponseEntity.badRequest().body(ApiResponse(success = false, error = error.message))
                     },
@@ -100,14 +109,15 @@ class OrderController(
     // tested - works
     @GetMapping("/{orderId}/track")
     fun trackOrder(
+        @RequestParam email: String,
         @PathVariable orderId: Long,
         requestHttp: HttpServletRequest,
     ): ResponseEntity<ApiResponse<String>> {
-        val userId = requestHttp.getAttribute("userId") as Long
-        return permissionMiddleware.enforce(userId, "CAN_TRACK_ORDER").fold(
+//        val userId = requestHttp.getAttribute("userId") as Long
+        return permissionMiddleware.enforce(email, "CAN_TRACK_ORDER").fold(
             ifLeft = { error -> ResponseEntity.ok(ApiResponse(success = false, error = error.message)) },
             ifRight = {
-                orderService.trackOrder(orderId, userId).fold(
+                orderService.trackOrder(orderId, email).fold(
                     ifLeft = { error ->
                         ResponseEntity.badRequest().body(ApiResponse(success = false, error = error.message))
                     },
@@ -120,16 +130,17 @@ class OrderController(
     // works - no-permission, schedule before today
     @PostMapping("/schedule")
     fun scheduleOrder(
+        @RequestParam email: String,
         @RequestBody request: PlaceOrderRequestDTO,
         requestHttp: HttpServletRequest,
     ): ResponseEntity<ApiResponse<String>> {
-        val userId = requestHttp.getAttribute("userId") as Long
-        return permissionMiddleware.enforce(userId, "CAN_SCHEDULE_ORDER").fold(
+//        val userId = requestHttp.getAttribute("userId") as Long
+        return permissionMiddleware.enforce(email, "CAN_SCHEDULE_ORDER").fold(
             ifLeft = { error -> ResponseEntity.ok(ApiResponse(success = false, error = error.message)) },
             ifRight = {
                 scheduledOrderService
                     .scheduleOrder(
-                        userId,
+                        email,
                         request.dishIds,
                         LocalDateTime.parse(request.scheduledTime!!),
                     ).fold(

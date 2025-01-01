@@ -6,9 +6,18 @@ POST http://localhost:8080/auth/login
 
 POST http://localhost:8080/users/create
 {
-  "firstName": "Shikamaru",
-  "lastName": "Nara",
-  "email": "shikamaru@konoha.com",
+  "firstName": "Hinata",
+  "lastName": "Hyga",
+  "email": "hinataa@konoha.com",
   "password": "password",
-  "isAdmin": false
+  "isAdmin": false,
+  "permissions": ["CAN_CREATE_USER", "CAN_READ_USER"]
 }
+
+{
+  "dishIds": [1, 4],
+  "quantities": [1, 2],
+  "scheduledTime": "2024-12-24T12:00:00"
+}
+
+DELETE http://localhost:2511/users/delete/hinata@konoha.com

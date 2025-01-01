@@ -14,12 +14,10 @@ class JwtTokenUtil {
     private val expirationTime: Long = 3600000 // 1 hour in milliseconds
 
     fun generateToken(
-        userId: Long,
         email: String,
         permissions: List<String>,
     ): String {
         val claims = Jwts.claims().setSubject(email)
-        claims["id"] = userId
         claims["permissions"] = permissions
 
         return Jwts
