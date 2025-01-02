@@ -1,0 +1,42 @@
+<div class="error-history-container">
+  <h2>Error History</h2>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="loading-spinner">Loading...</div>
+
+  <!-- Error Table -->
+  <table *ngIf="!isLoading && errors.length > 0" class="error-table">
+    <thead>
+    <tr>
+      <th>ID</th>
+      <th>Date</th>
+      <th>Order ID</th>
+      <th>Operation</th>
+      <th>Message</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let error of errors">
+      <td>{{ error.id }}</td>
+      <td>{{ error.date | date }}</td>
+      <td>{{ error.orderId }}</td>
+      <td>{{ error.operation }}</td>
+      <td>{{ error.message }}</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <!-- Pagination -->
+  <div *ngIf="!isLoading && totalPages > 1" class="pagination">
+    <button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 0">Previous</button>
+    <span>Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+    <button (click)="goToPage(currentPage + 1)" [disabled]="currentPage + 1 === totalPages">Next</button>
+  </div>
+
+  <div *ngIf="!isLoading && errors.length === 0" class="no-errors">
+    No errors found.
+  </div>
+</div>

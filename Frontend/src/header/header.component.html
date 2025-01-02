@@ -3,7 +3,11 @@
     <a routerLink="/users">My App</a>
   </div>
   <div class="nav-links">
-    <!-- Show Logout button if the user is authenticated -->
+    <a *ngIf="isAuthenticated()" routerLink="/users">Users</a>
+    <a *ngIf="isAuthenticated()" routerLink="/add-user">Add User</a>
+    <a *ngIf="isAuthenticated()" routerLink="/search-orders">Search Orders</a>
+    <a *ngIf="isAuthenticated()" routerLink="/create-order">Create Order</a>
+    <a *ngIf="isAuthenticated()" routerLink="/show-errors">Error History</a>
     <button *ngIf="isAuthenticated()" (click)="logout()" class="btn-logout">Logout</button>
   </div>
 </nav>

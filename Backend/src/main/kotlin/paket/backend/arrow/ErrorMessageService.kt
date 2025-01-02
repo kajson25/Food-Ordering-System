@@ -22,4 +22,6 @@ class ErrorMessageService(
             )
         return errorMessageRepository.save(errorMessage)
     }
+
+    fun getErrors(): List<ErrorMessage> = errorMessageRepository.findAll()
 }

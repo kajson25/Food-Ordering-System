@@ -1,0 +1,52 @@
+.order-container {
+  padding: 1rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.order-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.order-table th, .order-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.order-items {
+  margin-top: 2rem;
+}
+
+.order-items h3 {
+  margin-bottom: 0.5rem;
+}
+
+.order-items ul {
+  list-style: none;
+  padding: 0;
+}
+
+.order-items li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.no-orders {
+  margin-top: 1rem;
+  font-size: 1.2rem;
+  color: #777;
+}
+
+.loading-spinner {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.error-message {
+  color: red;
+  font-weight: bold;
+}

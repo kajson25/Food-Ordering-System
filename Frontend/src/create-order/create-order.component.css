@@ -1,0 +1,32 @@
+.create-order-container {
+  padding: 1rem;
+}
+
+.dish-catalog ul,
+.selected-dishes ul {
+  list-style: none;
+  padding: 0;
+}
+
+.dish-catalog li,
+.selected-dishes li {
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+button {
+  margin-left: 1rem;
+  cursor: pointer;
+}
+
+.error-message {
+  color: red;
+  font-weight: bold;
+}
+
+.success-message {
+  color: green;
+  font-weight: bold;
+}

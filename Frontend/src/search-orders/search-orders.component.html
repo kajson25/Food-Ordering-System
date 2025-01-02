@@ -1,0 +1,63 @@
+<div class="order-container">
+  <h2>Order Management</h2>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="loading-spinner">Loading...</div>
+
+  <!-- Search Form -->
+  <form *ngIf="!isLoading" (ngSubmit)="searchOrders()">
+    <div class="form-group">
+      <label for="statuses">Statuses:</label>
+      <select id="statuses" multiple [(ngModel)]="searchCriteria.statuses" name="statuses">
+        <option *ngFor="let status of allStatuses" [value]="status">{{ status }}</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="dateFrom">Date From:</label>
+      <input id="dateFrom" type="date" [(ngModel)]="searchCriteria.dateFrom" name="dateFrom" />
+    </div>
+
+    <div class="form-group">
+      <label for="dateTo">Date To:</label>
+      <input id="dateTo" type="date" [(ngModel)]="searchCriteria.dateTo" name="dateTo" />
+    </div>
+
+    <button type="submit">Search</button>
+  </form>
+
+  <!-- Orders Table -->
+  <table *ngIf="!isLoading && orders.length > 0" class="order-table">
+    <thead>
+    <tr>
+      <th>ID</th>
+      <th>Status</th>
+      <th>Active</th>
+      <th>Created By</th>
+      <th>Items</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let order of orders">
+      <td>{{ order.id }}</td>
+      <td>{{ order.status }}</td>
+      <td>{{ order.active ? 'Yes' : 'No' }}</td>
+      <td>{{ order.createdBy }}</td>
+      <td>
+        <ul>
+          <li *ngFor="let item of order.items">
+            {{ item.quantity }}x {{ item.dish.name }} ({{ item.dish.price | currency }})
+          </li>
+        </ul>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="!isLoading && orders.length === 0" class="no-orders">
+    No orders found.
+  </div>
+</div>

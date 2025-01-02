@@ -1,0 +1,40 @@
+.error-history-container {
+  padding: 1rem;
+}
+
+.error-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.error-table th, .error-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.pagination {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+button {
+  cursor: pointer;
+}
+
+.loading-spinner {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.error-message {
+  color: red;
+  font-weight: bold;
+}
+
+.no-errors {
+  margin-top: 1rem;
+  font-size: 1.2rem;
+  color: #777;
+}

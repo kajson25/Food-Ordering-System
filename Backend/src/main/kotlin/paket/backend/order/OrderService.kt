@@ -8,10 +8,11 @@ import paket.backend.arrow.ErrorMessageService
 import paket.backend.database.Item
 import paket.backend.database.Order
 import paket.backend.database.OrderStatus
-import paket.backend.database.User
 import paket.backend.dish.DishRepository
 import paket.backend.dtos.PlaceOrderRequestDTO
 import paket.backend.user.UserRepository
+import java.time.LocalDate
+import java.time.chrono.ChronoLocalDateTime
 
 @Service
 class OrderService(
@@ -23,19 +24,39 @@ class OrderService(
     fun allOrders(email: String): Either<AppError, List<Order>> = Either.Right(orderRepository.findAll())
 
     fun searchOrders(
-        email: String?,
-        status: List<OrderStatus>?,
+        email: String,
+        statuses: List<OrderStatus>?,
         dateFrom: String?,
         dateTo: String?,
-    ): Either<AppError, List<Order>> =
-        Either.Right(
-            if (email != null) {
-                val user: User? = userRepository.findByEmail(email)
-                orderRepository.findAllByCreatedById(user!!.id)
-            } else {
-                orderRepository.findAll()
-            },
-        )
+    ): Either<Error, List<Order>> =
+        try {
+            val parsedDateFrom = dateFrom?.let { LocalDate.parse(it) }
+            val parsedDateTo = dateTo?.let { LocalDate.parse(it) }
+
+            val user = userRepository.findByEmail(email)
+            val userOrders = orderRepository.findAllByCreatedById(user!!.id)
+
+            val filteredOrders =
+                userOrders.filter { order ->
+                    ((statuses == null) || (order.status in statuses)) &&
+                        (
+                            (parsedDateFrom == null) ||
+                                (
+                                    !order.createdAt.isBefore(ChronoLocalDateTime.from(parsedDateFrom)) &&
+                                        (
+                                            (parsedDateTo == null) ||
+                                                !order.createdAt.isAfter(
+                                                    ChronoLocalDateTime.from(parsedDateFrom),
+                                                )
+                                        )
+                                )
+                        )
+                }
+
+            Either.Right(filteredOrders)
+        } catch (e: Exception) {
+            Either.Left(Error("Failed to filter orders: ${e.message}"))
+        }
 
     fun cancelOrder(
         orderId: Long,

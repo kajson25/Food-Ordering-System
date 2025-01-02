@@ -2,33 +2,37 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #007bff;
-  padding: 10px 20px;
-  color: #fff;
+  background-color: #333;
+  padding: 1rem;
+  color: white;
 }
 
 .logo a {
-  color: #fff;
   text-decoration: none;
-  font-size: 1.5em;
+  color: white;
+  font-size: 1.5rem;
   font-weight: bold;
 }
 
 .nav-links {
   display: flex;
-  gap: 15px;
+  gap: 1rem;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: white;
+  font-size: 1rem;
 }
 
 .btn-logout {
-  padding: 8px 12px;
-  color: #fff;
-  background-color: #ff4d4d;
+  background-color: red;
+  color: white;
   border: none;
-  border-radius: 4px;
+  padding: 0.5rem 1rem;
   cursor: pointer;
 }
 
 .btn-logout:hover {
-  background-color: #e60000;
+  background-color: darkred;
 }
-

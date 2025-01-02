@@ -11,6 +11,7 @@ import paket.backend.dtos.OrderDTO
 import paket.backend.dtos.PlaceOrderRequestDTO
 import paket.backend.dtos.toDTO
 import paket.backend.permissions.PermissionMiddleware
+import paket.backend.security.jwt.JwtTokenUtil
 import java.time.LocalDateTime
 
 @RestController
@@ -19,13 +20,14 @@ class OrderController(
     private val orderService: OrderService,
     private val scheduledOrderService: ScheduledOrderService,
     private val permissionMiddleware: PermissionMiddleware,
+    private val jwtTokenUtil: JwtTokenUtil,
 ) {
     @GetMapping("/all")
     fun allOrders(
-        @RequestParam email: String,
         requestHttp: HttpServletRequest,
+        @RequestHeader("Authorization") token: String,
     ): ResponseEntity<ApiResponse<List<OrderDTO>>> {
-//        val userId = requestHttp.getAttribute("userId") as Long
+        val email = jwtTokenUtil.extractClaims(token.substringAfter("Bearer ")).subject
         return orderService.allOrders(email).fold(
             ifLeft = { error -> ResponseEntity.badRequest().body(ApiResponse(success = false, error = error.message)) },
             ifRight = { orders -> ResponseEntity.ok(ApiResponse(success = true, data = orders.map { it.toDTO() })) },
@@ -34,13 +36,13 @@ class OrderController(
 
     @GetMapping("/search")
     fun searchOrders(
-        @RequestParam email: String,
         @RequestParam statuses: List<OrderStatus>?,
         @RequestParam dateFrom: String?,
         @RequestParam dateTo: String?,
         requestHttp: HttpServletRequest,
+        @RequestHeader("Authorization") token: String,
     ): ResponseEntity<ApiResponse<List<OrderDTO>>> {
-//        val email = requestHttp.getAttribute("email") as String
+        val email = jwtTokenUtil.extractClaims(token.substringAfter("Bearer ")).subject
         return permissionMiddleware.enforce(email, "CAN_SEARCH_ORDER").fold(
             ifLeft = { error -> ResponseEntity.ok(ApiResponse(success = false, error = error.message)) },
             ifRight = {
@@ -67,11 +69,11 @@ class OrderController(
     // tested - working
     @PostMapping("/new-order")
     fun placeOrder(
-        @RequestParam email: String,
         @RequestBody request: PlaceOrderRequestDTO,
         requestHttp: HttpServletRequest,
+        @RequestHeader("Authorization") token: String,
     ): ResponseEntity<ApiResponse<OrderDTO>> {
-//        val email = requestHttp.getAttribute("email") as String
+        val email = jwtTokenUtil.extractClaims(token.substringAfter("Bearer ")).subject
         return permissionMiddleware.enforce(email, "CAN_PLACE_ORDER").fold(
             ifLeft = { error -> ResponseEntity.ok(ApiResponse(success = false, error = error.message)) },
             ifRight = {
@@ -88,11 +90,11 @@ class OrderController(
     // working but it's hard to test happy case because lag is too small
     @PostMapping("/{orderId}/cancel")
     fun cancelOrder(
-        @RequestParam email: String,
         @PathVariable orderId: Long,
         requestHttp: HttpServletRequest,
+        @RequestHeader("Authorization") token: String,
     ): ResponseEntity<ApiResponse<OrderDTO>> {
-//        val email = requestHttp.getAttribute("email") as String
+        val email = jwtTokenUtil.extractClaims(token.substringAfter("Bearer ")).subject
         return permissionMiddleware.enforce(email, "CAN_CANCEL_ORDER").fold(
             ifLeft = { error -> ResponseEntity.ok(ApiResponse(success = false, error = error.message)) },
             ifRight = {
@@ -109,11 +111,11 @@ class OrderController(
     // tested - works
     @GetMapping("/{orderId}/track")
     fun trackOrder(
-        @RequestParam email: String,
         @PathVariable orderId: Long,
         requestHttp: HttpServletRequest,
+        @RequestHeader("Authorization") token: String,
     ): ResponseEntity<ApiResponse<String>> {
-//        val userId = requestHttp.getAttribute("userId") as Long
+        val email = jwtTokenUtil.extractClaims(token.substringAfter("Bearer ")).subject
         return permissionMiddleware.enforce(email, "CAN_TRACK_ORDER").fold(
             ifLeft = { error -> ResponseEntity.ok(ApiResponse(success = false, error = error.message)) },
             ifRight = {
@@ -130,11 +132,11 @@ class OrderController(
     // works - no-permission, schedule before today
     @PostMapping("/schedule")
     fun scheduleOrder(
-        @RequestParam email: String,
         @RequestBody request: PlaceOrderRequestDTO,
         requestHttp: HttpServletRequest,
+        @RequestHeader("Authorization") token: String,
     ): ResponseEntity<ApiResponse<String>> {
-//        val userId = requestHttp.getAttribute("userId") as Long
+        val email = jwtTokenUtil.extractClaims(token.substringAfter("Bearer ")).subject
         return permissionMiddleware.enforce(email, "CAN_SCHEDULE_ORDER").fold(
             ifLeft = { error -> ResponseEntity.ok(ApiResponse(success = false, error = error.message)) },
             ifRight = {

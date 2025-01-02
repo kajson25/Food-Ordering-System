@@ -6,7 +6,7 @@ data class OrderDTO(
     val id: Long,
     val status: String,
     val active: Boolean,
-    val createdBy: UserResponseDto,
+    val createdBy: String, // user email
     val items: List<ItemDTO>,
 )
 
@@ -21,6 +21,6 @@ fun Order.toDTO() =
         id = this.id,
         status = this.status.name,
         active = this.active,
-        createdBy = this.createdBy!!.toDTO(),
+        createdBy = this.createdBy!!.email,
         items = this.items.map { it.toDTO() },
     )

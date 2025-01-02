@@ -1,0 +1,33 @@
+<div class="create-order-container">
+  <h2>Create Order</h2>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+  <!-- Success Message -->
+  <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
+
+  <!-- Dish Catalog -->
+  <div *ngIf="!isLoading" class="dish-catalog">
+    <h3>Available Dishes</h3>
+    <ul>
+      <li *ngFor="let dish of dishes">
+        <strong>{{ dish.name }}</strong> - {{ dish.price | currency }}
+        <p>{{ dish.description }}</p>
+        <button (click)="addDishToOrder(dish)">Add to Order</button>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Selected Dishes -->
+  <div *ngIf="selectedDishes.length > 0" class="selected-dishes">
+    <h3>Your Order</h3>
+    <ul>
+      <li *ngFor="let item of selectedDishes">
+        <strong>{{ item.dish.name }}</strong> - Quantity: {{ item.quantity }}
+        <button (click)="removeDishFromOrder(item.dish.id)">Remove</button>
+      </li>
+    </ul>
+    <button (click)="submitOrder()">Submit Order</button>
+  </div>
+</div>
