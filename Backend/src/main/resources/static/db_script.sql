@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS items (
 CREATE TABLE IF NOT EXISTS error_messages (
                 id BIGSERIAL PRIMARY KEY,
                 date date,
-                order_id BIGINT NOT NULL,
+                order_id BIGINT,
                 operation VARCHAR(255),
                 message VARCHAR(255),
                 FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE

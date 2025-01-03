@@ -43,6 +43,9 @@ class OrderController(
         @RequestHeader("Authorization") token: String,
     ): ResponseEntity<ApiResponse<List<OrderDTO>>> {
         val email = jwtTokenUtil.extractClaims(token.substringAfter("Bearer ")).subject
+        statuses!!.forEach { println("Status: $it") }
+        println("DateFrom: $dateFrom")
+        println("DateTo: $dateTo")
         return permissionMiddleware.enforce(email, "CAN_SEARCH_ORDER").fold(
             ifLeft = { error -> ResponseEntity.ok(ApiResponse(success = false, error = error.message)) },
             ifRight = {

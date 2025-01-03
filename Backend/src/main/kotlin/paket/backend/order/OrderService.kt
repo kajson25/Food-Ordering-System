@@ -4,7 +4,7 @@ import arrow.core.Either
 import arrow.core.flatMap
 import org.springframework.stereotype.Service
 import paket.backend.arrow.AppError
-import paket.backend.arrow.ErrorMessageService
+import paket.backend.arrow.errorHandler.ErrorMessageService
 import paket.backend.database.Item
 import paket.backend.database.Order
 import paket.backend.database.OrderStatus
@@ -12,7 +12,6 @@ import paket.backend.dish.DishRepository
 import paket.backend.dtos.PlaceOrderRequestDTO
 import paket.backend.user.UserRepository
 import java.time.LocalDate
-import java.time.chrono.ChronoLocalDateTime
 
 @Service
 class OrderService(
@@ -28,50 +27,89 @@ class OrderService(
         statuses: List<OrderStatus>?,
         dateFrom: String?,
         dateTo: String?,
-    ): Either<Error, List<Order>> =
-        try {
-            val parsedDateFrom = dateFrom?.let { LocalDate.parse(it) }
-            val parsedDateTo = dateTo?.let { LocalDate.parse(it) }
+    ): Either<Error, List<Order>> {
+        return try {
+            var tempF = dateFrom
+            var tempT = dateTo
+            if (dateFrom!!.isEmpty()) {
+                tempF = null
+            }
+            if (dateTo!!.isEmpty()) {
+                tempT = null
+            }
+            val parsedDateFrom = tempF?.let { LocalDate.parse(it) } ?: LocalDate.MIN
+            val parsedDateTo = tempT?.let { LocalDate.parse(it) } ?: LocalDate.now()
 
-            val user = userRepository.findByEmail(email)
-            val userOrders = orderRepository.findAllByCreatedById(user!!.id)
+            val user =
+                userRepository.findByEmail(email)
+                    ?: return Either.Left(Error("User not found with email: $email"))
+
+            val userOrders: List<Order> =
+                if (!user.isAdmin) {
+                    orderRepository.findAllByCreatedById(user.id)
+                } else {
+                    orderRepository.findAll()
+                }
 
             val filteredOrders =
                 userOrders.filter { order ->
-                    ((statuses == null) || (order.status in statuses)) &&
-                        (
-                            (parsedDateFrom == null) ||
-                                (
-                                    !order.createdAt.isBefore(ChronoLocalDateTime.from(parsedDateFrom)) &&
-                                        (
-                                            (parsedDateTo == null) ||
-                                                !order.createdAt.isAfter(
-                                                    ChronoLocalDateTime.from(parsedDateFrom),
-                                                )
-                                        )
-                                )
-                        )
+                    println("Order: ${order.status}")
+                    // Check if the order status matches or if no statuses are provided (all statuses)
+                    val matchesStatus = statuses == null || order.status in statuses
+                    println("Order: ${order.status}")
+
+                    // Check if the order's creation date falls within the provided range
+                    val matchesDate =
+                        !order.createdAt.isBefore(parsedDateFrom.atStartOfDay()) &&
+                            !order.createdAt.isAfter(parsedDateTo.atTime(23, 59, 59))
+
+                    matchesStatus && matchesDate
                 }
 
             Either.Right(filteredOrders)
         } catch (e: Exception) {
+            errorMessageService.logError(
+                orderId = null, // No specific order ID is relevant here
+                operation = "SEARCH ORDER",
+                message = "Failed to filter orders: ${e.message}",
+            )
             Either.Left(Error("Failed to filter orders: ${e.message}"))
         }
+    }
 
     fun cancelOrder(
         orderId: Long,
         email: String,
     ): Either<AppError, Order> {
         val order = orderRepository.findById(orderId)
-        if (order.isEmpty) return Either.Left(AppError.NotFound("Order", orderId))
+        if (order.isEmpty) {
+            errorMessageService.logError(
+                orderId = orderId,
+                operation = "CANCEL ORDER",
+                message = "Order not found",
+            )
+            return Either.Left(AppError.NotFound("Order", orderId))
+        }
 
         val orderEntity = order.get()
-        if (orderEntity.createdBy!!.email != email) return Either.Left(AppError.Unauthorized("cancel this order"))
+        if (orderEntity.createdBy!!.email != email) {
+            errorMessageService.logError(
+                orderId = orderId,
+                operation = "CANCEL ORDER",
+                message = "User unauthorized to cancel order",
+            )
+            return Either.Left(AppError.Unauthorized("Cancel this order"))
+        }
 
         return if (orderEntity.status == OrderStatus.ORDERED) {
             orderEntity.status = OrderStatus.CANCELED
             Either.Right(orderRepository.save(orderEntity))
         } else {
+            errorMessageService.logError(
+                orderId = orderId,
+                operation = "ORDER CANCEL",
+                message = "Order cannot be canceled unless it is in ORDERED state.",
+            )
             Either.Left(AppError.ValidationFailed("Order cannot be canceled unless it is in ORDERED state."))
         }
     }
@@ -84,7 +122,14 @@ class OrderService(
         if (order.isEmpty) return Either.Left(AppError.NotFound("Order", orderId))
 
         val orderEntity = order.get()
-        if (orderEntity.createdBy!!.email != email) return Either.Left(AppError.Unauthorized("track this order"))
+        if (orderEntity.createdBy!!.email != email) {
+            errorMessageService.logError(
+                orderId = orderId,
+                operation = "TRACKING ORDER",
+                message = "User unauthorized to track order",
+            )
+            return Either.Left(AppError.Unauthorized("track this order"))
+        }
 
         return Either.Right(orderEntity.status.name)
     }
@@ -93,6 +138,7 @@ class OrderService(
         email: String,
         request: PlaceOrderRequestDTO,
     ): Either<AppError, Order> {
+        // todo gotta check can someone schedule order
         val concurrentOrdersCount = orderRepository.countByStatusIn(listOf(OrderStatus.PREPARING, OrderStatus.IN_DELIVERY))
         if (concurrentOrdersCount >= 3) {
             errorMessageService.logError(

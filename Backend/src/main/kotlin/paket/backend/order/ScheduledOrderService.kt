@@ -5,7 +5,7 @@ import org.springframework.scheduling.annotation.Async
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import paket.backend.arrow.AppError
-import paket.backend.arrow.ErrorMessageService
+import paket.backend.arrow.errorHandler.ErrorMessageService
 import paket.backend.database.Item
 import paket.backend.database.Order
 import paket.backend.database.OrderStatus

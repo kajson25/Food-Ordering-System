@@ -20,6 +20,7 @@ interface Dish {
 export class CreateOrderComponent implements OnInit {
   dishes: Dish[] = []; // Catalog of dishes
   selectedDishes: { dish: Dish; quantity: number }[] = []; // Dishes selected by the user
+  scheduledTime: string | null = null; // Scheduled time for the order in ISO 8601 format
   isLoading = true;
   errorMessage = '';
   successMessage = '';
@@ -33,7 +34,7 @@ export class CreateOrderComponent implements OnInit {
   private fetchDishes(): void {
     const token = localStorage.getItem('authToken');
     this.http
-      .get<{ success: boolean; data: Dish[] }>('http://localhost:2511/dishes', {
+      .get<{ success: boolean; data: Dish[] }>('http://localhost:2511/dishes/all', {
         headers: { Authorization: `Bearer ${token}` },
       })
       .subscribe({
@@ -68,11 +69,15 @@ export class CreateOrderComponent implements OnInit {
 
   submitOrder(): void {
     const token = localStorage.getItem('authToken');
+    if (!this.selectedDishes.length) {
+      this.errorMessage = 'Please add at least one dish to your order.';
+      return;
+    }
+
     const orderRequest = {
-      dishIds: this.selectedDishes.map((item) => ({
-        dishId: item.dish.id,
-        quantity: item.quantity,
-      })),
+      dishIds: this.selectedDishes.map((item) => item.dish.id),
+      quantities: this.selectedDishes.map((item) => item.quantity),
+      scheduledTime: this.scheduledTime || null, // Include scheduled time if provided
     };
 
     this.http
@@ -86,6 +91,7 @@ export class CreateOrderComponent implements OnInit {
           if (response.success) {
             this.successMessage = 'Order created successfully!';
             this.selectedDishes = []; // Reset form
+            this.scheduledTime = null;
           } else {
             this.errorMessage = response.error || 'Failed to create order.';
           }

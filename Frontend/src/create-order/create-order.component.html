@@ -1,6 +1,9 @@
 <div class="create-order-container">
   <h2>Create Order</h2>
 
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="loading-spinner">Loading dishes...</div>
+
   <!-- Error Message -->
   <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
 
@@ -8,26 +11,48 @@
   <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
 
   <!-- Dish Catalog -->
-  <div *ngIf="!isLoading" class="dish-catalog">
+  <div class="dish-catalog">
     <h3>Available Dishes</h3>
-    <ul>
-      <li *ngFor="let dish of dishes">
-        <strong>{{ dish.name }}</strong> - {{ dish.price | currency }}
-        <p>{{ dish.description }}</p>
-        <button (click)="addDishToOrder(dish)">Add to Order</button>
-      </li>
-    </ul>
+    <div *ngFor="let dish of dishes" class="dish-item">
+      <p>{{ dish.name }} - {{ dish.description }} - ${{ dish.price.toFixed(2) }}</p>
+      <button (click)="addDishToOrder(dish)">Add to Order</button>
+    </div>
   </div>
 
   <!-- Selected Dishes -->
-  <div *ngIf="selectedDishes.length > 0" class="selected-dishes">
-    <h3>Your Order</h3>
-    <ul>
-      <li *ngFor="let item of selectedDishes">
-        <strong>{{ item.dish.name }}</strong> - Quantity: {{ item.quantity }}
-        <button (click)="removeDishFromOrder(item.dish.id)">Remove</button>
-      </li>
-    </ul>
-    <button (click)="submitOrder()">Submit Order</button>
+  <div class="selected-dishes" *ngIf="selectedDishes.length">
+    <h3>Selected Dishes</h3>
+    <table>
+      <thead>
+      <tr>
+        <th>Dish</th>
+        <th>Quantity</th>
+        <th>Action</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let item of selectedDishes">
+        <td>{{ item.dish.name }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>
+          <button (click)="removeDishFromOrder(item.dish.id)">Remove</button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
   </div>
+
+  <!-- Scheduled Time -->
+  <div class="form-group">
+    <label for="scheduledTime">Scheduled Time:</label>
+    <input
+      id="scheduledTime"
+      type="datetime-local"
+      [(ngModel)]="scheduledTime"
+      name="scheduledTime"
+    />
+  </div>
+
+  <!-- Submit Order -->
+  <button (click)="submitOrder()">Submit Order</button>
 </div>

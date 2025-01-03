@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 
 interface ErrorMessage {
-  id: number;
   date: string;
   orderId: number;
   operation: string;
@@ -20,7 +19,7 @@ interface ErrorMessage {
 export class ErrorHistoryComponent implements OnInit {
   errors: ErrorMessage[] = [];
   currentPage = 0;
-  pageSize = 10;
+  pageSize = 5;
   totalPages = 0;
   isLoading = true;
   errorMessage = '';
