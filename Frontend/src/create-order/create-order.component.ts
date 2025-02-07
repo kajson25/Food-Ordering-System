@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import {AuthService} from '../services/auth.service';
 
 interface Dish {
   id: number;
@@ -25,10 +27,47 @@ export class CreateOrderComponent implements OnInit {
   errorMessage = '';
   successMessage = '';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private router: Router, private authService: AuthService,) {}
 
   ngOnInit(): void {
+    this.checkPermissions();
     this.fetchDishes();
+  }
+
+  private checkPermissions(): void {
+    const token = localStorage.getItem('authToken');
+    const userEmail = this.authService.getLoggedInUserEmail();
+
+    if (!token || !userEmail) {
+      this.errorMessage = 'Authentication token or user email is missing.';
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    this.http
+      .get<{ success: boolean; data?: { permission: string }[] }>(
+        `http://localhost:2511/permissions/${userEmail}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            const userPermissions = response.data?.map((p) => p.permission) || [];
+            if (!userPermissions.includes('CAN_PLACE_ORDER')) {
+              this.errorMessage = 'You do not have permission to create orders.';
+              this.router.navigate(['/home']); // Redirect to a fallback page
+            }
+          } else {
+            this.errorMessage = 'Failed to verify permissions.';
+            this.router.navigate(['/home']);
+          }
+        },
+        error: (err) => {
+          console.error('Permission check failed:', err);
+          this.errorMessage = 'An error occurred while verifying permissions.';
+          this.router.navigate(['/home']);
+        },
+      });
   }
 
   private fetchDishes(): void {
@@ -93,7 +132,10 @@ export class CreateOrderComponent implements OnInit {
             this.selectedDishes = []; // Reset form
             this.scheduledTime = null;
           } else {
-            this.errorMessage = response.error || 'Failed to create order.';
+            if (response.error?.includes('max'))
+              this.errorMessage = response.error || 'Max amount of orders is 2';
+            else
+              this.errorMessage = response.error || 'Failed to create order.';
           }
         },
         error: (err) => {

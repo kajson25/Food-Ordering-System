@@ -20,13 +20,21 @@ class OrderService(
     private val userRepository: UserRepository,
     private val errorMessageService: ErrorMessageService,
 ) {
-    fun allOrders(email: String): Either<AppError, List<Order>> = Either.Right(orderRepository.findAll())
+    fun allOrders(email: String): Either<AppError, List<Order>> {
+        val user = userRepository.findByEmail(email)
+        return if (user!!.isAdmin) {
+            Either.Right(orderRepository.findAll())
+        } else {
+            Either.Right(orderRepository.findAllByCreatedById(user.id))
+        }
+    }
 
     fun searchOrders(
         email: String,
         statuses: List<OrderStatus>?,
         dateFrom: String?,
         dateTo: String?,
+        userId: Long?,
     ): Either<Error, List<Order>> {
         return try {
             var tempF = dateFrom
@@ -48,7 +56,11 @@ class OrderService(
                 if (!user.isAdmin) {
                     orderRepository.findAllByCreatedById(user.id)
                 } else {
-                    orderRepository.findAll()
+                    if (userId == null || userId == -1L) {
+                        orderRepository.findAll()
+                    } else {
+                        orderRepository.findAllByCreatedById(userId)
+                    }
                 }
 
             val filteredOrders =
@@ -103,6 +115,7 @@ class OrderService(
 
         return if (orderEntity.status == OrderStatus.ORDERED) {
             orderEntity.status = OrderStatus.CANCELED
+            orderEntity.active = false
             Either.Right(orderRepository.save(orderEntity))
         } else {
             errorMessageService.logError(
@@ -131,6 +144,7 @@ class OrderService(
             return Either.Left(AppError.Unauthorized("track this order"))
         }
 
+        println("Status to return: ${orderEntity.status.name}")
         return Either.Right(orderEntity.status.name)
     }
 
@@ -139,8 +153,11 @@ class OrderService(
         request: PlaceOrderRequestDTO,
     ): Either<AppError, Order> {
         // todo gotta check can someone schedule order
-        val concurrentOrdersCount = orderRepository.countByStatusIn(listOf(OrderStatus.PREPARING, OrderStatus.IN_DELIVERY))
-        if (concurrentOrdersCount >= 3) {
+        val concurrentOrdersCount =
+            orderRepository.countByStatusIn(
+                listOf(OrderStatus.ORDERED, OrderStatus.PREPARING, OrderStatus.IN_DELIVERY),
+            )
+        if (concurrentOrdersCount >= 2) {
             errorMessageService.logError(
                 orderId = null,
                 operation = "CREATE_ORDER",
@@ -179,5 +196,12 @@ class OrderService(
                 Either.Right(orderRepository.save(order))
             }
         }
+    }
+
+    fun recentOrder(email: String): Either<AppError, Order> {
+        val user = userRepository.findByEmail(email)
+        val orders: List<Order> = orderRepository.findAllByCreatedById(user!!.id)
+        println("Last order: ${orders.last()}")
+        return Either.Right(orders.last())
     }
 }

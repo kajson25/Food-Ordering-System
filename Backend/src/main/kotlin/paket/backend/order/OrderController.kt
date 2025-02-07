@@ -39,6 +39,7 @@ class OrderController(
         @RequestParam statuses: List<OrderStatus>?,
         @RequestParam dateFrom: String?,
         @RequestParam dateTo: String?,
+        @RequestParam userId: Long?,
         requestHttp: HttpServletRequest,
         @RequestHeader("Authorization") token: String,
     ): ResponseEntity<ApiResponse<List<OrderDTO>>> {
@@ -49,7 +50,8 @@ class OrderController(
         return permissionMiddleware.enforce(email, "CAN_SEARCH_ORDER").fold(
             ifLeft = { error -> ResponseEntity.ok(ApiResponse(success = false, error = error.message)) },
             ifRight = {
-                orderService.searchOrders(email, statuses, dateFrom, dateTo).fold(
+                // todo fix user id
+                orderService.searchOrders(email, statuses, dateFrom, dateTo, userId).fold(
                     ifLeft = { error ->
                         ResponseEntity.badRequest().body(ApiResponse(success = false, error = error.message))
                     },
@@ -127,6 +129,25 @@ class OrderController(
                         ResponseEntity.badRequest().body(ApiResponse(success = false, error = error.message))
                     },
                     ifRight = { status -> ResponseEntity.ok(ApiResponse(success = true, data = status)) },
+                )
+            },
+        )
+    }
+
+    @GetMapping("/recent")
+    fun recentOrder(
+        requestHttp: HttpServletRequest,
+        @RequestHeader("Authorization") token: String,
+    ): ResponseEntity<ApiResponse<OrderDTO>> {
+        val email = jwtTokenUtil.extractClaims(token.substringAfter("Bearer ")).subject
+        return permissionMiddleware.enforce(email, "CAN_SEARCH_ORDER").fold(
+            ifLeft = { error -> ResponseEntity.ok(ApiResponse(success = false, error = error.message)) },
+            ifRight = {
+                orderService.recentOrder(email).fold(
+                    ifLeft = { error ->
+                        ResponseEntity.badRequest().body(ApiResponse(success = false, error = error.message))
+                    },
+                    ifRight = { order -> ResponseEntity.ok(ApiResponse(success = true, data = order.toDTO())) },
                 )
             },
         )

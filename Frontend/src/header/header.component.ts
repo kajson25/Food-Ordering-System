@@ -11,7 +11,7 @@ import {AuthService} from '../services/auth.service';
   styleUrls: ['./header.component.css'],
 })
 export class HeaderComponent {
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(protected authService: AuthService, private router: Router) {}
 
   // Logout and redirect to login
   logout(): void {
@@ -21,5 +21,8 @@ export class HeaderComponent {
   isAuthenticated(): boolean {
     return this.authService.isAuthenticated();
   }
-}
 
+  isLoginPage(): boolean {
+    return this.router.url === '/';
+  }
+}

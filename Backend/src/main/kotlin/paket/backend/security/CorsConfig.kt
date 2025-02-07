@@ -9,7 +9,9 @@ class CorsConfig : WebMvcConfigurer {
     override fun addCorsMappings(registry: CorsRegistry) {
         registry
             .addMapping("/**") // Allow all paths
-            .allowedOrigins("*") // Allow requests from any origin
+            .allowedOrigins("http://localhost:4200") // Allow frontend origin (Do NOT use "*")
             .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Allow specific methods
+            .allowedHeaders("*") // Allow all headers
+            .allowCredentials(true) // Allow credentials (important for JWT auth)
     }
 }

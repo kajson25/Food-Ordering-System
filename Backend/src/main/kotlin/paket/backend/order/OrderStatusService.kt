@@ -13,7 +13,7 @@ class OrderStatusService(
     private val orderRepository: OrderRepository,
     private val errorMessageService: ErrorMessageService,
 ) {
-    @Scheduled(fixedRate = 5000) // Run every 5 seconds
+    @Scheduled(fixedRate = 10000) // Run every 5 seconds
     @Async
     fun updateOrderStatuses() {
         val now = LocalDateTime.now()

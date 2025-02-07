@@ -51,6 +51,8 @@ export class AuthService {
   }
 
   hasPermission(permission: string): boolean {
+    if(!this.isAuthenticated())
+      return false;
     return this.permissions.includes(permission);
   }
 

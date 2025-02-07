@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import {AuthService} from '../services/auth.service';
 
 @Component({
   selector: 'app-edit-user',
@@ -23,13 +24,50 @@ export class EditUserComponent implements OnInit {
   constructor(
     private http: HttpClient,
     private route: ActivatedRoute,
-    private router: Router
-  ) {
-  }
+    private router: Router,
+    private authService: AuthService,
+  ) {}
 
   ngOnInit(): void {
+    this.checkPermissions();
     this.fetchUserDetails();
     this.fetchAllPermissions();
+  }
+
+  private checkPermissions(): void {
+    const token = localStorage.getItem('authToken');
+    const userEmail = this.authService.getLoggedInUserEmail();
+
+    if (!token || !userEmail) {
+      this.errorMessage = 'Authentication token or user email is missing.';
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    this.http
+      .get<{ success: boolean; data?: { permission: string }[] }>(
+        `http://localhost:2511/permissions/${userEmail}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            const userPermissions = response.data?.map((p) => p.permission) || [];
+            if (!userPermissions.includes('CAN_UPDATE_USER')) {
+              this.errorMessage = 'You do not have permission to edit users.';
+              this.router.navigate(['/users']);
+            }
+          } else {
+            this.errorMessage = 'Failed to verify permissions.';
+            this.router.navigate(['/users']);
+          }
+        },
+        error: (err) => {
+          console.error('Permission check failed:', err);
+          this.errorMessage = 'An error occurred while verifying permissions.';
+          this.router.navigate(['/users']);
+        },
+      });
   }
 
   private fetchUserDetails(): void {
@@ -48,7 +86,7 @@ export class EditUserComponent implements OnInit {
         success: boolean;
         data: { firstName: string; lastName: string; email: string; password: string; isAdmin: boolean };
       }>(`http://localhost:2511/users/${email}`, {
-        headers: {Authorization: `Bearer ${token}`},
+        headers: { Authorization: `Bearer ${token}` },
       })
       .subscribe({
         next: (response) => {
@@ -73,7 +111,7 @@ export class EditUserComponent implements OnInit {
     this.http
       .get<{ success: boolean; data: { permission: string }[] }>(
         `http://localhost:2511/permissions/${email}`,
-        {headers: {Authorization: `Bearer ${token}`}}
+        { headers: { Authorization: `Bearer ${token}` } }
       )
       .subscribe({
         next: (response) => {
@@ -97,7 +135,7 @@ export class EditUserComponent implements OnInit {
     this.http
       .get<{ success: boolean; data: { permission: string }[] }>(
         `http://localhost:2511/permissions/all`,
-        {headers: {Authorization: `Bearer ${token}`}}
+        { headers: { Authorization: `Bearer ${token}` } }
       )
       .subscribe({
         next: (response) => {

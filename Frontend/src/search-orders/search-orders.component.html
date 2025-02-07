@@ -26,6 +26,11 @@
       <input id="dateTo" type="date" [(ngModel)]="searchCriteria.dateTo" name="dateTo" />
     </div>
 
+    <div class="form-group">
+      <label for="userId">User:</label>
+      <input id="userId" [(ngModel)]="searchCriteria.userId" name="userId" />
+    </div>
+
     <button type="submit">Search</button>
   </form>
 
@@ -38,12 +43,13 @@
       <th>Active</th>
       <th>Created By</th>
       <th>Items</th>
+      <th>Actions</th>
     </tr>
     </thead>
     <tbody>
     <tr *ngFor="let order of orders">
       <td>{{ order.id }}</td>
-      <td>{{ order.status }}</td>
+      <td [class.canceled]="order.status === 'CANCELED'">{{ order.status }}</td>
       <td>{{ order.active ? 'Yes' : 'No' }}</td>
       <td>{{ order.createdBy }}</td>
       <td>
@@ -52,6 +58,16 @@
             {{ item.quantity }}x {{ item.dish.name }} ({{ item.dish.price | currency }})
           </li>
         </ul>
+      </td>
+      <td>
+        <!-- Cancel Button: Visible Only for 'ORDERED' Orders & User with 'CAN_CANCEL_ORDER' -->
+        <button
+          *ngIf="order.status === 'ORDERED' && authService.hasPermission('CAN_CANCEL_ORDER')"
+          (click)="cancelOrder(order.id)"
+          class="btn-cancel"
+        >
+          Cancel
+        </button>
       </td>
     </tr>
     </tbody>

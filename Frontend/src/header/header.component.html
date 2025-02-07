@@ -1,13 +1,20 @@
 <nav class="header">
   <div class="logo">
-    <a routerLink="/users">My App</a>
+    <a routerLink="/">MyApp</a>
   </div>
   <div class="nav-links">
-    <a *ngIf="isAuthenticated()" routerLink="/users">Users</a>
-    <a *ngIf="isAuthenticated()" routerLink="/add-user">Add User</a>
-    <a *ngIf="isAuthenticated()" routerLink="/search-orders">Search Orders</a>
-    <a *ngIf="isAuthenticated()" routerLink="/create-order">Create Order</a>
-    <a *ngIf="isAuthenticated()" routerLink="/show-errors">Error History</a>
-    <button *ngIf="isAuthenticated()" (click)="logout()" class="btn-logout">Logout</button>
+    <!-- User Routes -->
+    <a *ngIf="authService.hasPermission('CAN_READ_USER')" routerLink="/users">Users</a>
+    <a *ngIf="authService.hasPermission('CAN_CREATE_USER')" routerLink="/add-user">Add User</a>
+
+    <!-- Order Routes -->
+    <a *ngIf="authService.hasPermission('CAN_SEARCH_ORDER')" routerLink="/search-orders">Search Orders</a>
+    <a *ngIf="authService.hasPermission('CAN_PLACE_ORDER')" routerLink="/create-order">Create Order</a>
+    <a *ngIf="authService.hasPermission('CAN_TRACK_ORDER')" routerLink="/track-order">Track Order</a>
+
+
+    <!-- Error Routes -->
+    <a routerLink="/show-errors">Error History</a>
   </div>
+  <button *ngIf="isAuthenticated() && !isLoginPage()" class="btn-logout" (click)="logout()">Logout</button>
 </nav>
