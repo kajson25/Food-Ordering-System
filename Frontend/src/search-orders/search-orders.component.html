@@ -1,13 +1,10 @@
 <div class="order-container">
   <h2>Order Management</h2>
 
-  <!-- Error Message -->
   <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
 
-  <!-- Loading Spinner -->
   <div *ngIf="isLoading" class="loading-spinner">Loading...</div>
 
-  <!-- Search Form -->
   <form *ngIf="!isLoading" (ngSubmit)="searchOrders()">
     <div class="form-group">
       <label for="statuses">Statuses:</label>
@@ -34,7 +31,6 @@
     <button type="submit">Search</button>
   </form>
 
-  <!-- Orders Table -->
   <table *ngIf="!isLoading && orders.length > 0" class="order-table">
     <thead>
     <tr>
@@ -60,7 +56,6 @@
         </ul>
       </td>
       <td>
-        <!-- Cancel Button: Visible Only for 'ORDERED' Orders & User with 'CAN_CANCEL_ORDER' -->
         <button
           *ngIf="order.status === 'ORDERED' && authService.hasPermission('CAN_CANCEL_ORDER')"
           (click)="cancelOrder(order.id)"

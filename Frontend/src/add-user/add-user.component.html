@@ -1,13 +1,10 @@
 <div class="add-user-container">
   <h2>Add New User</h2>
 
-  <!-- Success Message -->
   <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
 
-  <!-- Error Message -->
   <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
 
-  <!-- Add User Form -->
   <form (ngSubmit)="onSubmit()">
     <div class="form-group">
       <label for="firstName">First Name:</label>

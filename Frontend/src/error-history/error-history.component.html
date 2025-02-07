@@ -1,13 +1,10 @@
 <div class="error-history-container">
   <h2>Error History</h2>
 
-  <!-- Loading Spinner -->
   <div *ngIf="isLoading" class="loading-spinner">Loading...</div>
 
-  <!-- Error Message -->
   <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
 
-  <!-- Error Table -->
   <table *ngIf="!isLoading && errors.length > 0" class="error-table">
     <thead>
     <tr>
@@ -27,14 +24,12 @@
     </tbody>
   </table>
 
-  <!-- Pagination -->
   <div *ngIf="!isLoading && totalPages > 1" class="pagination">
     <button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 0">Previous</button>
     <span>Page {{ currentPage + 1 }} of {{ totalPages }}</span>
     <button (click)="goToPage(currentPage + 1)" [disabled]="currentPage + 1 >= totalPages">Next</button>
   </div>
 
-  <!-- No Data Message -->
   <div *ngIf="!isLoading && errors.length === 0" class="no-errors">
     No errors found.
   </div>

@@ -1,13 +1,10 @@
 <div class="user-list-container">
   <h2>User Management</h2>
 
-  <!-- Loading State -->
   <div *ngIf="isLoading" class="loading-spinner">Loading...</div>
 
-  <!-- Error Message -->
   <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
 
-  <!-- User Table -->
   <table *ngIf="!isLoading && users.length > 0" class="user-table">
     <thead>
     <tr>
@@ -32,10 +29,8 @@
     </tbody>
   </table>
 
-  <!-- Add User Button -->
   <button *ngIf="canAdd()" (click)="onAddUser()" class="btn-add">Add User</button>
 
-  <!-- No Users Message -->
   <div *ngIf="!isLoading && users.length === 0" class="no-users">
     No users found.
   </div>

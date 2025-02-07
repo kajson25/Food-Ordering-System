@@ -1,16 +1,12 @@
 <div class="edit-user-container">
   <h2>Edit User</h2>
 
-  <!-- Loading Spinner -->
   <div *ngIf="isLoading" class="loading-spinner">Loading...</div>
 
-  <!-- Error Message -->
   <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
 
-  <!-- Success Message -->
   <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
 
-  <!-- Edit Form -->
   <form *ngIf="!isLoading && user" (ngSubmit)="saveChanges()">
     <div class="form-group">
       <label for="firstName">First Name:</label>

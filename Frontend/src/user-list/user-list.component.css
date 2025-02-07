@@ -1,17 +1,33 @@
 .user-list-container {
-  padding: 20px;
   max-width: 800px;
-  margin: 0 auto;
+  margin: 40px auto;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  font-family: 'Arial', sans-serif;
+}
+
+/* Header */
+.user-list-container h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
 }
 
 .loading-spinner {
   text-align: center;
-  font-size: 18px;
+  font-weight: bold;
+  color: #007bff;
+  margin-bottom: 10px;
 }
 
 .error-message {
-  color: red;
-  margin-bottom: 20px;
+  background: #f8d7da;
+  color: #721c24;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 10px;
   text-align: center;
 }
 
@@ -21,32 +37,82 @@
   margin-top: 20px;
 }
 
+.user-table thead {
+  background: #007bff;
+  color: white;
+}
+
 .user-table th,
 .user-table td {
-  padding: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid #ddd;
+  padding: 12px;
   text-align: left;
 }
 
 .user-table th {
-  background-color: #f4f4f4;
+  text-transform: uppercase;
+  font-size: 14px;
+}
+
+.user-table tr:nth-child(even) {
+  background: #f9f9f9;
+}
+
+.user-table tr:hover {
+  background: rgba(0, 123, 255, 0.1);
+  transition: background 0.3s;
 }
 
 .btn-edit {
-  padding: 5px 10px;
-  color: #fff;
-  background-color: #007bff;
+  background: #ffc107;
+  color: black;
   border: none;
-  border-radius: 4px;
+  padding: 8px 12px;
+  border-radius: 5px;
   cursor: pointer;
+  transition: background 0.3s;
+  margin-right: 5px;
 }
 
 .btn-edit:hover {
-  background-color: #0056b3;
+  background: #e0a800;
+}
+
+.btn-delete {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.btn-delete:hover {
+  background: #b02a37;
+}
+
+.btn-add {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+  margin-top: 20px;
+}
+
+.btn-add:hover {
+  background: #218838;
 }
 
 .no-users {
   text-align: center;
-  font-size: 16px;
-  color: #666;
+  color: #555;
+  font-style: italic;
+  margin-top: 15px;
 }

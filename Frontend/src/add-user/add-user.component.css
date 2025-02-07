@@ -1,18 +1,33 @@
 .add-user-container {
+  max-width: 450px;
+  margin: 40px auto;
   padding: 20px;
-  max-width: 500px;
-  margin: 0 auto;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  font-family: 'Arial', sans-serif;
+}
+
+.add-user-container h2 {
+  text-align: center;
+  color: #333;
 }
 
 .success-message {
-  color: green;
-  margin-bottom: 20px;
+  background: #d4edda;
+  color: #155724;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 10px;
   text-align: center;
 }
 
 .error-message {
-  color: red;
-  margin-bottom: 20px;
+  background: #f8d7da;
+  color: #721c24;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 10px;
   text-align: center;
 }
 
@@ -20,58 +35,70 @@
   margin-bottom: 15px;
 }
 
-label {
-  font-weight: bold;
-  margin-bottom: 5px;
+.form-group label {
   display: block;
+  font-weight: bold;
+  color: #555;
+  margin-bottom: 5px;
 }
 
-input {
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="password"] {
   width: 100%;
   padding: 10px;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 5px;
+  font-size: 16px;
+  transition: border-color 0.3s;
 }
 
-.btn-save {
-  padding: 10px 15px;
-  color: #fff;
-  background-color: #007bff;
-  border: none;
-  border-radius: 4px;
+.form-group input:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+.form-group input[type="checkbox"] {
+  margin-right: 8px;
+  transform: scale(1.1);
   cursor: pointer;
-}
-
-.btn-save:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
-}
-.btn-save:hover:not(:disabled) {
-  background-color: #0056b3;
-}
-.add-user-btn-container {
-  margin-bottom: 20px;
-  text-align: right;
-}
-
-.btn-add-user {
-  padding: 10px 15px;
-  color: #fff;
-  background-color: #28a745;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.btn-add-user:hover {
-  background-color: #218838;
-}
-
-.error-message {
-  color: red;
-  font-size: 0.875em;
 }
 
 input.invalid {
-  border-color: red;
+  border-color: #dc3545 !important;
+}
+
+small.error-message {
+  color: #dc3545;
+  display: block;
+  margin-top: 5px;
+}
+
+#permissions {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background: #f9f9f9;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+button:hover {
+  background: #0056b3;
+}
+
+button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
 }

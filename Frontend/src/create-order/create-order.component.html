@@ -1,16 +1,12 @@
 <div class="create-order-container">
   <h2>Create Order</h2>
 
-  <!-- Loading Spinner -->
   <div *ngIf="isLoading" class="loading-spinner">Loading dishes...</div>
 
-  <!-- Error Message -->
   <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
 
-  <!-- Success Message -->
   <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
 
-  <!-- Dish Catalog -->
   <div class="dish-catalog">
     <h3>Available Dishes</h3>
     <div *ngFor="let dish of dishes" class="dish-item">
@@ -19,7 +15,6 @@
     </div>
   </div>
 
-  <!-- Selected Dishes -->
   <div class="selected-dishes" *ngIf="selectedDishes.length">
     <h3>Selected Dishes</h3>
     <table>
@@ -42,7 +37,6 @@
     </table>
   </div>
 
-  <!-- Scheduled Time -->
   <div class="form-group">
     <label for="scheduledTime">Scheduled Time:</label>
     <input
@@ -53,6 +47,5 @@
     />
   </div>
 
-  <!-- Submit Order -->
   <button (click)="submitOrder()">Submit Order</button>
 </div>
