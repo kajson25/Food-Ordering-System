@@ -96,6 +96,10 @@ export class UserListComponent implements OnInit {
     return this.authService.hasPermission('CAN_DELETE_USER');
   }
 
+  isCurrentUser(email: string): boolean {
+    return email === this.authService.getLoggedInUserEmail();
+  }
+
   onAddUser(): void {
     if (this.canAdd()) {
       window.location.href = `/add-user`;
@@ -105,6 +109,10 @@ export class UserListComponent implements OnInit {
   }
 
   onEditUser(email: string): void {
+    if (this.isCurrentUser(email)) {
+      alert('You cannot edit your own user account.');
+      return;
+    }
     if (this.canEdit()) {
       window.location.href = `/edit/${email}`;
     } else {
@@ -113,6 +121,10 @@ export class UserListComponent implements OnInit {
   }
 
   onDeleteUser(email: string): void {
+    if (this.isCurrentUser(email)) {
+      alert('You cannot delete your own user account.');
+      return;
+    }
     if (!this.canDelete()) {
       alert('You do not have permission to delete users.');
       return;

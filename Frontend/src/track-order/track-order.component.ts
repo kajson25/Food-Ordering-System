@@ -93,7 +93,7 @@ export class TrackOrderComponent implements OnInit, OnDestroy {
       } else {
         clearInterval(this.refreshInterval); // Stop polling if order is delivered
       }
-    }, 5000); // Poll every 5 seconds
+    }, 6000); // Poll every 6 seconds
   }
 
   private trackOrder(): void {
